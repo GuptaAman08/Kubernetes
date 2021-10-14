@@ -1,0 +1,13 @@
+# Please Refer the Docker-React Repo for K8s code from now (from section 12
+apiVersion: v1
+kind: Pod
+metadata:
+  name: client-pod
+  labels:
+    component: web
+spec:
+  containers:
+    - name: client
+      image: stephengrider/multi-client
+      ports:
+        - containerPort: 3000
