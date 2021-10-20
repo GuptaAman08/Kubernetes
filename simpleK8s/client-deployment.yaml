@@ -16,5 +16,5 @@ spec:
         - name: client
           image: stephengrider/multi-client
           ports:
-            - containerPort: 9999
+            - containerPort: 3000
 
