@@ -1,0 +1,36 @@
+sudo: required
+services:
+  - docker
+
+env:
+  global:
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
+before_install:
+  # - openssl.... command that you will get after encrypting the service-account.json file that you got form google cloud
+  - curl https://sdk.cloud.google.com | bash > /dev/null;
+  - source $HOME/google-cloud-sdk/path.bash.inc
+  - gcloud components update kubectl
+  - gcloud auth activate-service-account --key-file service-account.json
+  #- gcloud config set project <id_corresponding_to_google_cloud_proj_name>
+  #- gcloud config set compute/zone us-central1-a (region in which the cluster is there )
+  #- gcloud container clusters get-credentials <cluster_name> (cluster name to use in the above region )
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker build -t GuptaAman08/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true GuptaAman08/react-test npm run test
+
+# deployment scripts is what we are going to write in separate file and tell travis to run it.
+# This is quite diff what we to use do earlier where travis manages deployment to elasticbeanstalk
+# Travis does not have built in "provider" for K8s for deploying to google K8s cluster as oppose to elasticbeanstalk.
+
+# This will tell provider that dont worry of deployment just run the script file to take care of the deployment 
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
+
+## Last thing is setting secret in gcloud manually using its access terminal in running cluster feature
