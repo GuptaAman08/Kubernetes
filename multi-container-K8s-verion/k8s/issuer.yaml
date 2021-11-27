@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: "test@test.com"
+    ## It turns out that whenever our K8s cluster communicates with letsencrypt, during that process letsecrypt will
+    ## sendover some secret key to our K8s cluster.
+    ## It is this key that our K8s cluster uses to respond to the random url that letsencrypt will send us.
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      ## Specifying we want to use http process to obtain the certificate
+      - http01:
+          ingress:
+            class: nginx
